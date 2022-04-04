@@ -78,15 +78,22 @@ public class CaseConfigPost {
     Public static List<Case_Config__c> FetchCaseConfig(String CaseId){
         List<Case_Config__c> CaseConfigList = new List<Case_Config__c>();
         CaseConfigList = [select id, name, Amount__c, Case__c, Label__c, Type__c from Case_Config__c where Case__c =: CaseId order by Label__c];
-        system.debug('configList  '+CaseConfigList);
         return CaseConfigList;
     }
     @AuraEnabled
-    Public static List<Config__c> FetchConfig(){
+    Public static FetchConfigWrapper FetchConfig(String CaseId){
         List<Config__c> ConfigList = new List<Config__c>();
         ConfigList = [select id, name, Amount__c, Label__c, Type__c from Config__c  order by Label__c];
-        system.debug('configList  '+ConfigList);
-        return ConfigList;
+        Case c = [select id, status from case where id=:CaseId ];
+        FetchConfigWrapper configWrap = new FetchConfigWrapper();
+        configWrap.ConfigList = ConfigList;
+        configWrap.caseStatus = c.status;
+        return configWrap;
+    }
+
+    Public class FetchConfigWrapper{
+        @AuraEnabled public List<Config__c> ConfigList;
+        @AuraEnabled public String caseStatus;
     }
     public class CaseConfigWrapper{
         @AuraEnabled public String caseId;

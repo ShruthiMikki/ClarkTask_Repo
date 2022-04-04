@@ -1,5 +1,5 @@
 <template>
-    <lightning-card title="List of all Configs1">
+    <lightning-card title="List of all Configs">
         <div>
             <c-config-data-table table-records={configList} show-check-box=true ></c-config-data-table> 
         </div>
@@ -9,7 +9,8 @@
                 label="Select Configs"
                 titel="Select Configs"
                 onclick={handelClick}
-                class="slds-m-left_x-small">
+                class="slds-m-left_x-small"
+                disabled={disable}>
             </lightning-button>
         </div>
     </lightning-card>

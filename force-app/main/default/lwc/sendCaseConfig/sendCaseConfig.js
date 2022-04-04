@@ -1,5 +1,7 @@
 import { LightningElement,api, wire } from 'lwc';
 import CaseConfigUpdated from '@salesforce/messageChannel/CaseConfigUpdated__c';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { NavigationMixin } from 'lightning/navigation';
 import {
     subscribe,
     unsubscribe,
@@ -9,7 +11,7 @@ import postCaseConfigs from "@salesforce/apex/CaseConfigPost.PostConfig"
 import FetchCaseConfigs from "@salesforce/apex/CaseConfigPost.FetchCaseConfig"
 
 
-export default class SendCaseConfig extends LightningElement {
+export default class SendCaseConfig extends NavigationMixin(LightningElement)  {
     @wire(MessageContext)
     messageContext;
     receivedMessage;
@@ -17,13 +19,11 @@ export default class SendCaseConfig extends LightningElement {
     @api recordId; 
 
    FetchCaseConfigRecords(){
-       console.log('inside postCaseConfigs2');
        FetchCaseConfigs({
         CaseId: this.recordId
        })
         .then(response => {
             if(response != null){
-                console.log("Handle click  "+JSON.stringify(response));
                 this.configList = response;
             }
         }).catch(error =>{
@@ -33,7 +33,6 @@ export default class SendCaseConfig extends LightningElement {
     
     // Encapsulate logic for Lightning message service subscribe and unsubsubscribe
     subscribeToMessageChannel() {
-        console.log('inside subscribeToMessageChannel');
         if (!this.subscription) {
             this.subscription = subscribe(
                 this.messageContext,
@@ -47,7 +46,6 @@ export default class SendCaseConfig extends LightningElement {
         this.receivedMessage = message
           ? JSON.stringify(message, null, "\t")
           : "no message";
-          console.log('receivedMessage  '+this.receivedMessage);
           if(this.receivedMessage){
             this.FetchCaseConfigRecords();
           }
@@ -72,9 +70,15 @@ export default class SendCaseConfig extends LightningElement {
         postCaseConfigs({
             CaseId: this.recordId
         })
-            .this(response => {
-                if(response != null){
-                    console.log("Handle click  "+response);
+            .then(response => {
+                if(response){
+                    console.log('response '+response);
+                    const event = new ShowToastEvent({
+                        title: 'Success!',
+                        variant: 'success',
+                        message: 'Case details are sent successfully.',
+                    });
+                    this.dispatchEvent(event);
                 }
             }).catch(error =>{
                 console.error("error in apex ", JSON.parse(JSON.stringify(error)))

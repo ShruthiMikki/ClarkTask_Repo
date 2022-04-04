@@ -11,13 +11,9 @@ export default class AvailableConfigs extends LightningElement {
     @api recordId;
     configList = [];
     selectedLabelsList = [];
-    columns =  [
-        {label: 'Label', fieldName: 'Label__c', type: 'text',  sortable: "true"},
-        {label: 'Type', fieldName: 'Type__c', type: 'text', sortable: "true"},
-        {label: 'Amount', fieldName: 'Amount__c', type: 'text', sortable: "true"}
-     ];
     sortBy;
     sortDirection;
+    disable = false;
 
     connectedCallback(){
         FetchConfig({
@@ -25,7 +21,10 @@ export default class AvailableConfigs extends LightningElement {
            })
             .then(response => {
                 if(response != null){
-                    this.configList = response;
+                    this.configList = response.ConfigList;
+                    if(response.caseStatus === 'Closed'){
+                        this.disable = true;
+                    }
                 }
             }).catch(error =>{
                 console.error("error in apex ", JSON.parse(JSON.stringify(error)))
