@@ -1,0 +1,26 @@
+<template>
+    <template if:true={showCheckBox}>
+        <lightning-datatable
+            key-field="id"
+            data={tableRecords}
+            columns={columns}
+            sorted-by={sortBy}
+            sorted-direction={sortDirection}
+            onsort={doSorting}
+            onrowselection={handleRowAction}>
+        </lightning-datatable>
+</template>
+    <template if:true={showRowNumber}>
+        <lightning-datatable
+            key-field="id"
+            show-row-number-column
+            hide-checkbox-column
+            data={tableRecords}
+            sorted-by={sortBy}
+            sorted-direction={sortDirection}
+            onsort={doSorting}
+            columns={columns}>
+        </lightning-datatable>
+    </template>
+    
+</template>

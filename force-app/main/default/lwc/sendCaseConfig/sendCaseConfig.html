@@ -1,22 +1,16 @@
 <template>
-    <lightning-card title="Case Configs">
+    <lightning-card title="Selected Case Configs">
         <div>
+            <c-config-data-table table-records={configList} show-row-number=true></c-config-data-table>
+        </div>
+            <div class="slds-p-top_large">
                 <lightning-button
-                    variant="success"
-                    label="Send Case Configs"
-                    titel="Send Case Configs"
+                    variant="brand"
+                    label="Send"
+                    titel="Send"
                     onclick={handelClick}
                     class="slds-m-left_x-small">
                 </lightning-button>
-            </div>
-            <div  class="slds-p-top_large">
-                <lightning-datatable
-                        key-field="id"
-                        show-row-number-column
-                        hide-checkbox-column
-                        data={accList}
-                        columns={columns}>
-                </lightning-datatable>
             </div>
     </lightning-card>
 </template>

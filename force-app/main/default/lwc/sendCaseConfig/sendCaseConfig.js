@@ -1,13 +1,10 @@
 import { LightningElement,api, wire } from 'lwc';
 import CaseConfigUpdated from '@salesforce/messageChannel/CaseConfigUpdated__c';
-
-
 import {
     subscribe,
     unsubscribe,
     MessageContext
   } from "lightning/messageService";
-//import { NavigationMixin } from 'lightning/navigation';
 import postCaseConfigs from "@salesforce/apex/CaseConfigPost.PostConfig"
 import FetchCaseConfigs from "@salesforce/apex/CaseConfigPost.FetchCaseConfig"
 
@@ -16,17 +13,8 @@ export default class SendCaseConfig extends LightningElement {
     @wire(MessageContext)
     messageContext;
     receivedMessage;
-    accList = [];
-    columns =  [
-        {label: 'Label', fieldName: 'Label__c', type: 'text'},
-        {label: 'Type', fieldName: 'Type__c', type: 'text'},
-        {label: 'Amount', fieldName: 'Amount__c', type: 'text'}
-     ];
-    @api recordId;
-    connectedCallback(){
-        console.log("inside connectedCallback 22 "+this.recordId);
-        this.FetchCaseConfigRecords();
-   }  
+    configList = [];
+    @api recordId; 
 
    FetchCaseConfigRecords(){
        console.log('inside postCaseConfigs2');
@@ -36,22 +24,13 @@ export default class SendCaseConfig extends LightningElement {
         .then(response => {
             if(response != null){
                 console.log("Handle click  "+JSON.stringify(response));
-                this.accList = response;
+                this.configList = response;
             }
         }).catch(error =>{
             console.error("error in apex ", JSON.parse(JSON.stringify(error)))
         });
    }  
-    /*handelClick({
-        CaseId: recordId
-    }){
-        console.log("Handle click");
-        postCaseConfigs().then(result=>{
-            if(result != null){
-                console.log("Handle click  "+result);
-            }
-        })
-    }*/
+    
     // Encapsulate logic for Lightning message service subscribe and unsubsubscribe
     subscribeToMessageChannel() {
         console.log('inside subscribeToMessageChannel');

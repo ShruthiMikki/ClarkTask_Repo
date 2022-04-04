@@ -1,6 +1,4 @@
 import { LightningElement,api, wire } from 'lwc';
-//import { NavigationMixin } from 'lightning/navigation';
-// Import message service features required for publishing and the message channel
 import { publish, MessageContext } from 'lightning/messageService';
 import CaseConfigUpdated from '@salesforce/messageChannel/CaseConfigUpdated__c';
 
@@ -11,47 +9,43 @@ export default class AvailableConfigs extends LightningElement {
     messageContext;
 
     @api recordId;
-    accList = [];
+    configList = [];
     selectedLabelsList = [];
     columns =  [
-        {label: 'Label', fieldName: 'Label__c', type: 'text'},
-        {label: 'Type', fieldName: 'Type__c', type: 'text'},
-        {label: 'Amount', fieldName: 'Amount__c', type: 'text'}
+        {label: 'Label', fieldName: 'Label__c', type: 'text',  sortable: "true"},
+        {label: 'Type', fieldName: 'Type__c', type: 'text', sortable: "true"},
+        {label: 'Amount', fieldName: 'Amount__c', type: 'text', sortable: "true"}
      ];
-    
+    sortBy;
+    sortDirection;
 
     connectedCallback(){
-        console.log("inside connectedCallback 22 "+this.recordId);
         FetchConfig({
             CaseId: this.recordId
            })
             .then(response => {
                 if(response != null){
-                    console.log("Handle click  "+JSON.stringify(response));
-                    this.accList = response;
+                    this.configList = response;
                 }
             }).catch(error =>{
                 console.error("error in apex ", JSON.parse(JSON.stringify(error)))
             });
-   } 
-   handleRowAction(event) {
-        console.log('handleRowAction6  '+JSON.stringify(event.detail.selectedRows));
-        this.selectedLabelsList = event.detail.selectedRows;
-    }
+    } 
+
     handelClick(){
-        console.log('this.selectedLabelsList2  '+JSON.stringify(this.selectedLabelsList));
+        
+        let childCmp = this.template.querySelector('c-config-data-table');
+        this.selectedLabelsList = childCmp.sendSelectedList;
+        //selectedLabelsList = a;
         CreateCaseConfig({
             ConfigList: this.selectedLabelsList,
             CaseId: this.recordId
            })
             .then(response => {
                 if(response != null){
-                    console.log("Handle click  "+JSON.stringify(response));
-                    //this.accList = response;
                     const messaage = {
                         refreshTable: true
                       };
-                    console.log("messaage  "+JSON.stringify(messaage));
                     publish(this.messageContext, CaseConfigUpdated, messaage);
                 }
             }).catch(error =>{

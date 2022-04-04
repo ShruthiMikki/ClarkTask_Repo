@@ -1,16 +1,11 @@
 <template>
-    <lightning-card>
+    <lightning-card title="List of all Configs1">
         <div>
-            <lightning-datatable
-                    key-field="id"
-                    data={accList}
-                    columns={columns}
-                    onrowselection={handleRowAction}>
-            </lightning-datatable>
+            <c-config-data-table table-records={configList} show-check-box=true ></c-config-data-table> 
         </div>
         <div  class="slds-p-top_large">
             <lightning-button
-                variant="success"
+                variant="brand"
                 label="Select Configs"
                 titel="Select Configs"
                 onclick={handelClick}

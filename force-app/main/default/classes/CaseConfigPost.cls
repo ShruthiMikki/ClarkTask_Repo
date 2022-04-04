@@ -1,7 +1,6 @@
 public class CaseConfigPost {
     @AuraEnabled
     Public static boolean PostConfig(String CaseId){
-        System.debug('CaseId   '+CaseId);
         Case UpdateCase = new case();
         UpdateCase.id = CaseId;
         UpdateCase.Status = 'Closed';
@@ -9,39 +8,47 @@ public class CaseConfigPost {
         processRecords(CaseId);
         return true;
     }
-
-    @future
+    
+    @Future(callout=true)
     public static void processRecords(String CaseId){ 
-        List<Case_Config__c> caseConfigList = FetchCaseConfig(CaseId);
-        CaseConfigWrapper CaseConfig = new CaseConfigWrapper();
-        CaseConfig.caseId = CaseId;
-        CaseConfig.status = 'Close';
-        caseConfig cc ;
-        List<caseConfig> caseConfigWrapperList = new List<caseConfig>();
-        for(Case_Config__c c: caseConfigList){
-            cc = new caseConfig();
-            cc.label = c.Label__c;
-            cc.type = c.Type__c;
-            cc.amount = c.Amount__c;
-            caseConfigWrapperList.add(cc);
+        try
+        {
+            List<Case_Config__c> caseConfigList = FetchCaseConfig(CaseId);
+            CaseConfigWrapper CaseConfig = new CaseConfigWrapper();
+            CaseConfig.caseId = CaseId;
+            CaseConfig.status = 'Close';
+            caseConfig cc ;
+            List<caseConfig> caseConfigWrapperList = new List<caseConfig>();
+            for(Case_Config__c c: caseConfigList){
+                cc = new caseConfig();
+                cc.label = c.Label__c;
+                cc.type = c.Type__c;
+                cc.amount = c.Amount__c;
+                caseConfigWrapperList.add(cc);
+            }
+            CaseConfig.caseConfigs = caseConfigWrapperList;
+            Http http = new Http();
+            HttpRequest request = new HttpRequest();
+            request.setEndpoint('https://clark.requestcatcher.com/test');
+            request.setMethod('POST');
+            request.setHeader('Content-Type', 'application/json;charset=UTF-8');
+            request.setBody( JSON.serialize(CaseConfig));
+            HttpResponse response = http.send(request);
+            if(response.getStatusCode() != 200) {
+                CalloutException e = new CalloutException();
+                e.setMessage('The status code returned was not expected: ' + response.getStatusCode() + ' ' + response.getStatus());
+                throw e;
+            } else {
+                System.debug('Success');
+            }
         }
-        CaseConfig.caseConfigs = caseConfigWrapperList;
-        Http http = new Http();
-        HttpRequest request = new HttpRequest();
-        request.setEndpoint('https://clark.requestcatcher.com/test');
-        request.setMethod('POST');
-        request.setHeader('Content-Type', 'application/json;charset=UTF-8');
-        // Set the body as a JSON object
-        request.setBody( JSON.serialize(CaseConfig));
-        HttpResponse response = http.send(request);
-        // Parse the JSON response
-        if(response.getStatusCode() != 201) {
-            System.debug('The status code returned was not expected: ' + response.getStatusCode() + ' ' + response.getStatus());
-        } else {
-            System.debug(response.getBody());
+        catch (Exception e)
+        { 
+            system.debug(e);
         }
     }
-
+    
+    
     @AuraEnabled
     Public static String CreateCaseConfig(List<Config__c> ConfigList, String CaseId){
         List<Case_Config__c> CaseConfigInsertList = new List<Case_Config__c>();
@@ -66,7 +73,7 @@ public class CaseConfigPost {
         }
         return 'Success';
     }
-
+    
     @AuraEnabled
     Public static List<Case_Config__c> FetchCaseConfig(String CaseId){
         List<Case_Config__c> CaseConfigList = new List<Case_Config__c>();
